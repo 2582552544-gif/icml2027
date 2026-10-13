@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-10-13T15:56:05.279613+08:00",
+  "client": "local-openai-compatible",
+  "endpoint": "http://127.0.0.1:8317/v1/images/generations",
+  "model": "gpt-image-2.5-flare",
+  "prompt": "A clean scientific comparison infographic: DualDiff vs MM-MT data formats side by side. Left panel 'DualDiff (NeurIPS 2024)': protein shown as PDB pocket file (10A radius), ligand shown as 3D SDF structure, zero-shot transfer from TargetDiff, 438 drugs × 12972 pairs. Right panel 'MM-MT (ICML 2026)': protein shown as 528-dim embedding vector + PyG graph, ligand shown as SMILES string, two-stage training (ZINC15 pretrain + finetune), 1970 proteins in dataset. Center shows shared concepts: binding pocket, target pair, drug synergy. Clean white background, split blue/purple color scheme, modern flat design, academic poster style.",
+  "size": "1536x1024",
+  "quality": "",
+  "output_format": "png",
+  "watermark": false,
+  "n": 1
+}

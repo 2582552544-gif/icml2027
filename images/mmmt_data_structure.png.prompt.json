@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-10-13T15:56:05.279573+08:00",
+  "client": "local-openai-compatible",
+  "endpoint": "http://127.0.0.1:8317/v1/images/generations",
+  "model": "gpt-image-2.5-flare",
+  "prompt": "A clean scientific infographic diagram showing the MM-MT multi-target drug design data structure. Three columns: Column 1 'CSV Data' shows a table icon with columns SMILES, Target1_Uniprot, Target1_Gene_Seq, Target2_Uniprot, Target2_Gene_Seq. Column 2 'Protein Embeddings' shows .npy files (1970 files) with a 528-dim vector visualization, named by UniProt ID like A0AVT1.npy. Column 3 'Protein Graphs' shows .pt files (1961 files) with a graph visualization showing residue nodes and spatial edges, named by UniProt ID. Bottom shows the two-stage pipeline: Stage 1 ZINC15 pretraining with MutiMolGPT, Stage 2 multi-target drug design. Clean white background, purple and orange color scheme, modern flat design, academic poster style.",
+  "size": "1536x1024",
+  "quality": "",
+  "output_format": "png",
+  "watermark": false,
+  "n": 1
+}

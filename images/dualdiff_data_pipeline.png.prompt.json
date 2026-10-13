@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-10-13T15:56:05.279572+08:00",
+  "client": "local-openai-compatible",
+  "endpoint": "http://127.0.0.1:8317/v1/images/generations",
+  "model": "gpt-image-2.5-flare",
+  "prompt": "A clean scientific infographic diagram showing the DualDiff dual-target drug design data pipeline. Left side: DrugCombDB database icon with '448K drug combinations' → filter arrow labeled 'ZIP+Bliss+Loewe+HSA all positive' → DrugBank/TTD box '438 unique drugs with SMILES & targets' → PDBBind/PDB/AlphaFold DB '3D protein structures' → P2Rank 'pocket prediction' → AutoDock Vina 'docking' → Final dataset box '12,917 synergistic target pairs'. Right side shows the file structure: index_dict.pkl (drug index mapping), synergy_idx_list.pkl (target pairs), and a folder tree showing SMILES/UniProtID/ligand.sdf+pocket_10A.pdb+protein.pdb. Clean white background, blue and green color scheme, modern flat design, no text smaller than 12pt. Academic poster style.",
+  "size": "1536x1024",
+  "quality": "",
+  "output_format": "png",
+  "watermark": false,
+  "n": 1
+}

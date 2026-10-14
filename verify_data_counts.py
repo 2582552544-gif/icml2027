@@ -8,6 +8,7 @@ image = modal.Image.debian_slim(python_version="3.11")
 @app.function(image=image, volumes={"/data": volume}, timeout=300)
 def verify():
     import pickle, os
+    from collections import Counter
 
     dd = "/data/repos/DualDiff/data/processed"
 
@@ -16,18 +17,30 @@ def verify():
         synergy = pickle.load(f)
     print(f"synergy_idx_list.pkl: {len(synergy)} pairs")
 
-    # Check for duplicates
+    # Check directed duplicates and direction symmetry separately
+    directed_counts = Counter(tuple(pair) for pair in synergy)
+    repeated_directed = {pair: count for pair, count in directed_counts.items() if count > 1}
+    print(f"Unique directed records: {len(directed_counts)}")
+    print(f"Repeated directed keys: {len(repeated_directed)}")
+    print(f"Extra rows from exact directed duplicates: {sum(c - 1 for c in repeated_directed.values())}")
+
     unique_pairs = set()
     for pair in synergy:
         unique_pairs.add(tuple(sorted(pair)))
     print(f"Unique unordered pairs: {len(unique_pairs)}")
-    print(f"Duplicates (same pair, different order): {len(synergy) - len(unique_pairs)}")
+    print(f"Rows beyond unordered-key count: {len(synergy) - len(unique_pairs)}")
 
     # Check if there are reverse duplicates
-    fwd = set(synergy)
+    fwd = set(directed_counts)
     rev = set((b, a) for a, b in synergy)
     both_directions = fwd & rev
     print(f"Pairs present in both directions (a,b) and (b,a): {len(both_directions)}")
+    missing_reverse = sorted(pair for pair in fwd if (pair[1], pair[0]) not in fwd)
+    self_pairs = sorted(pair for pair in fwd if pair[0] == pair[1])
+    print(f"Directed keys without a reverse key: {len(missing_reverse)}")
+    print(f"Self-pairs: {len(self_pairs)}")
+    if missing_reverse:
+        print(f"Examples without reverse: {missing_reverse[:10]}")
 
     # 2. Check index_dict
     with open(f"{dd}/dock/index_dict.pkl", "rb") as f:
@@ -73,15 +86,13 @@ def verify():
         else:
             print("All synergy indices are valid in index_dict")
 
-    # 5. Explanation of 12917 vs 12972
+    # 5. Report the unresolved 12,917 vs 12,972 discrepancy
     print(f"\n=== ANALYSIS ===")
     print(f"Paper claims: 12,917 positive drug combinations")
     print(f"synergy_idx_list.pkl has: {len(synergy)} entries")
     print(f"Difference: {len(synergy) - 12917}")
-    if len(both_directions) > 0:
-        one_dir_count = len(synergy) - len(both_directions) // 2
-        print(f"If we remove reverse duplicates: {len(unique_pairs)} unique pairs")
-        print(f"Paper's 12,917 likely counts unique unordered pairs")
+    print(f"If we merge direction: {len(unique_pairs)} unique unordered pairs")
+    print("12,917 is NOT the unordered-pair count; the released files do not explain the 55-entry gap.")
 
 
 @app.local_entrypoint()

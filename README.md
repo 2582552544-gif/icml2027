@@ -13,21 +13,23 @@
 
 ## 数据概览
 
+> 口径约定：本文将“论文报告值”“公开文件实测值”“可离线复现值”分开陈述。文件存在不等于论文实验可完整复现。
+
 ### DualDiff (556 MB)
 
-- **438** 个药物，**12,972** 条协同靶点对（6,486 个唯一无序对）
+- **438** 个参考药物，公开 pkl 含 **12,972** 行：12,960 个唯一有方向键，其中 12 个自组合键各重复 1 次；归并方向后为 6,486 个唯一无序组合。论文报告 12,917 条
 - 每个药物-靶点复合物包含：`ligand.sdf` + `pocket_10A.pdb` + `protein.pdb`
 - 数据来源：DrugCombDB → DrugBank/TTD → PDBBind/PDB/AlphaFold DB
 - 下载：[HuggingFace](https://huggingface.co/datasets/zhouxiangxin/DualDiff)
 
 ### MM-MT (451.6 MB)
 
-- **79,514** 行双靶点数据（CSV），**1,057** 个唯一蛋白靶点
+- **79,514** 行双靶点数据（CSV），**1,328** 个唯一蛋白靶点
 - 蛋白嵌入：1,970 个 `.npy` 文件（1024 维向量）
 - 蛋白图：1,961 个 `.pt` 文件（PyG Data）
 - 预训练数据源：ZINC15
 
-> `.npy` 和 `.pt` 文件的 UniProt ID 完全不重叠，代表两组不同蛋白的不同模态表示。
+> 正确规范化结构图文件名后，1,961 个 `.pt` ID 全部存在同名 `.npy`；另有 9 个仅存在 `.npy`。CSV 使用的 1,328 个靶点均同时具备两种表示。
 
 ## 文件说明
 
@@ -35,26 +37,21 @@
 |------|------|
 | [数据使用指南.md](数据使用指南.md) | **核心文档** — 数据格式详解 + Few-shot 代码示例 |
 | [datasets-guide.md](datasets-guide.md) | 论文概览、数据来源、下载链接汇总 |
-| `images/` | 3 张 AI 生成的数据格式解释图 |
+| `images/` | 旧版 AI 信息图及生成元数据；存在历史错误，当前文档不再引用 |
 | `download_to_modal.py` | 下载三个 GitHub 仓库到 Modal volume |
 | `download_hf_data.py` | 下载 HuggingFace 数据 + Git LFS 拉取到 Modal |
 | `share_data.py` | Modal web endpoint，提供数据浏览页面 |
 | `verify_*.py` | 数据验证脚本（论文 vs 实际数据交叉核对） |
 
-## 数据格式图
+## 数据关系速览
 
-### DualDiff 数据构建流程
-![DualDiff Pipeline](images/dualdiff_data_pipeline.png)
-
-### MM-MT 多模态数据结构
-![MM-MT Structure](images/mmmt_data_structure.png)
-
-### 两篇论文数据格式对比
-![Comparison](images/comparison_data_formats.png)
+- DualDiff：药物组合索引 → 两个参考药物 → 各自对应的 UniProt 靶标和蛋白—配体复合物。
+- MM-MT：每条 CSV 记录包含一个 SMILES、两个 UniProt ID、两条编码核苷酸序列；每个靶点再关联一个 1024 维 ProtTrans embedding 和一个结构图。
+- `images/` 中旧信息图基于早期错误统计生成，已停止在文档中引用；应以本文数字和验证脚本输出为准。
 
 ## 快速开始
 
-### 方式 1：Modal（数据已就绪）
+### 方式 1：Modal（公开文件已就绪）
 
 ```python
 import modal
@@ -99,6 +96,7 @@ git clone https://github.com/guanjq/targetdiff.git
 
 | 项目 | 论文声称 | 实际数据 |
 |------|---------|---------|
-| DualDiff 靶点对 | 12,917 | pkl 含 12,972 条双向对，6,486 唯一无序对 |
-| MM-MT 嵌入维度 | — | 1024（非 528） |
-| MM-MT npy/pt 关系 | — | 两组完全不重叠的 UniProt ID |
+| DualDiff 协同药物组合 | 12,917 条 | pkl 含 12,972 行、12,960 个唯一有方向键；归并顺序后为 6,486 个唯一无序组合 |
+| MM-MT 最终训练集 | 75,921 行、1,305 蛋白 | 公开 CSV 为 79,514 行、1,328 蛋白；缺最终过滤清单，不能等同 |
+| MM-MT 嵌入维度 | `Femb ∈ R^1024` | `.npy` shape 为 `(1, 1024)`，一致 |
+| MM-MT npy/pt 关系 | 每个样本需两种表示 | 1,961 个 ID 重叠；9 个仅有 `.npy`；CSV 的 1,328 个 ID 均完整 |

@@ -7,7 +7,7 @@ image = modal.Image.debian_slim(python_version="3.11").pip_install("numpy")
 
 @app.function(image=image, volumes={"/data": volume}, timeout=300)
 def verify():
-    import os, zipfile, numpy as np
+    import csv, io, os, zipfile, numpy as np
 
     mm = "/data/repos/MM-MT"
 
@@ -30,7 +30,10 @@ def verify():
 
         # Check npy file names (UniProt IDs)
         npy_ids = set(os.path.basename(n).replace(".npy", "") for n in npy_files)
-        pt_ids = set(os.path.basename(n).replace(".pt", "") for n in pt_files)
+        pt_ids = {
+            os.path.basename(n).removeprefix("alphafold_").removesuffix("_surf.pt")
+            for n in pt_files
+        }
         print(f"\nUnique UniProt IDs in .npy: {len(npy_ids)}")
         print(f"Unique UniProt IDs in .pt: {len(pt_ids)}")
         print(f"IDs in npy but not pt: {len(npy_ids - pt_ids)}")
@@ -76,13 +79,11 @@ def verify():
         # Check UniProt IDs in CSV vs embedding files
         print(f"\n=== Cross-check ===")
         with z.open(csv_file) as f:
-            f.readline()  # skip header
+            reader = csv.DictReader(io.TextIOWrapper(f, encoding="utf-8"))
             csv_targets = set()
-            for line in f:
-                parts = line.decode("utf-8", "replace").strip().split(",")
-                if len(parts) >= 4:
-                    csv_targets.add(parts[1])  # Target1_Uniprot
-                    csv_targets.add(parts[3])  # Target2_Uniprot
+            for row in reader:
+                csv_targets.add(row["Target1_Uniprot"].strip())
+                csv_targets.add(row["Target2_Uniprot"].strip())
         print(f"Unique UniProt IDs in CSV: {len(csv_targets)}")
         csv_in_npy = csv_targets & npy_ids
         csv_not_in_npy = csv_targets - npy_ids

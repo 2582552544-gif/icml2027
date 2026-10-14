@@ -1,10 +1,10 @@
 """
-MM-MT 数据预处理 Pipeline（对齐论文 Appendix C）
+MM-MT 数据预处理审计 Pipeline（近似实现论文 Appendix C）
 
 论文: Geometric Pocket-Centric Protein Encoding for Polypharmacology-Guided Multi-Target Drug Design (ICML 2026)
 
 输入: filtered_dual_target_data2.csv (79,514 行)
-输出: filtered_final.csv (论文报告 75,921 行)
+输出: filtered_final.csv（审计结果，不等同于论文最终训练集）
 
 预处理步骤 (Appendix C):
   1. SMILES 标准化 + token 长度过滤 [34, 74]
@@ -110,16 +110,16 @@ def _compute_properties(smi):
 
 
 def _check_homology_one(args):
-    """检查单个训练蛋白是否与任一测试蛋白同源 >40%（BioPython globalxx）"""
+    """近似检查同源性；论文未公开比对工具/参数，本实现不能作为严格复现。"""
     from Bio import pairwise2
     uid, train_seq, test_seqs_items = args
     if not train_seq:
         return None
-    s1 = train_seq[:500]
+    s1 = train_seq
     for _test_uid, test_seq in test_seqs_items:
         if not test_seq:
             continue
-        s2 = test_seq[:500]
+        s2 = test_seq
         score = pairwise2.align.globalxx(s1, s2, score_only=True)
         identity = score / max(len(s1), len(s2))
         if identity > 0.40:
@@ -316,7 +316,7 @@ def preprocess():
     elapsed = time.time() - t0
 
     print(f"\n{'=' * 60}")
-    print(f"预处理完成  [{elapsed:.0f}s]")
+    print(f"审计性预处理完成  [{elapsed:.0f}s]")
     print(f"{'=' * 60}")
     print(f"  最终样本数: {len(df):,} (论文: 75,921)")
     print(f"  最终蛋白数: {len(remaining_targets):,} (论文: 1,305)")

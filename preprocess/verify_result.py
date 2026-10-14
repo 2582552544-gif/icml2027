@@ -1,4 +1,4 @@
-"""验证预处理结果是否与论文报告一致。"""
+"""比较审计性预处理输出与论文报告；不把近似输出认定为论文数据。"""
 
 import modal
 
@@ -17,7 +17,7 @@ def verify():
     import pandas as pd
 
     print("=" * 60)
-    print("验证预处理结果")
+    print("审计预处理结果与论文参照值")
     print("=" * 60)
 
     # 检查输出文件
@@ -49,9 +49,12 @@ def verify():
     test_ids = {"P15056", "P62942", "P0DTD1", "P0DTC4", "P04899", "P28335"}
     leaked = targets & test_ids
     if leaked:
-        print(f"\n  ⚠️  测试蛋白泄露: {leaked}")
+        print(f"\n  ❌ 测试蛋白仍在审计输出中: {leaked}；该输出不可用于论文复现")
     else:
         print(f"\n  ✅ 无测试蛋白泄露")
+
+    if len(df) != 75921 or len(targets) != 1305:
+        print("\n  ⚠️  数量未对齐论文；请将该文件视为近似审计产物，而非最终训练集。")
 
     # 读取属性文件
     props_path = f"{OUTPUT}/filtered_final_mol_8properties.txt"

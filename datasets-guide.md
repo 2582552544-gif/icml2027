@@ -33,6 +33,8 @@ MM-MT/
 
 ### 1.2 数据集详解（从仓库验证）
 
+口径说明：论文报告最终训练集为 75,921 行、1,305 个蛋白；公开 CSV 实测为 79,514 行、1,328 个蛋白。发布 zip 另含 1,970 个 1024 维 embedding 和 1,961 个结构图；1,961 个 ID 两种模态重叠，另有 9 个仅有 embedding。公开 CSV 的 1,328 个蛋白均有两种表示。
+
 #### A. 预训练数据 — ZINC15
 
 预训练数据从 ZINC15 筛选，仓库提供了筛选脚本：
@@ -50,7 +52,7 @@ data/2pretrainedsmiles_properties.py    # 预训练 SMILES 及分子性质处理
 ```
 data/3PDB2graph.py                      # PDB 蛋白结构转图表示
 data/4screenmultimodaldata.py           # 筛选多模态数据
-data/multidata.zip                      # 多模态数据（压缩包，134 bytes — 可能是 Git LFS 指针）
+data/multidata.zip                      # Git LFS 文件；拉取后 451.6 MB
 ```
 
 - **数据源**: [PDB](https://www.rcsb.org/) — Protein Data Bank
@@ -85,6 +87,8 @@ conda env create -f environment.yml
 ```
 
 ### 1.4 运行方式
+
+以下是仓库 README 给出的入口，不代表当前发布包可原样执行。实际还缺 `vocab.pkl`、8 维属性文件、预训练 decoder checkpoint，以及复现论文最终 75,921 行训练集的过滤清单。
 
 ```bash
 # 1. 预训练
@@ -175,7 +179,7 @@ AutoDock Vina (获取蛋白-配体复合物结构 + 选择最佳靶点)
 
 | 属性 | 值 |
 |------|-----|
-| **药物组合对数（论文）** | 12,917（实际 pkl 含 12,972 条双向对，6,486 个唯一无序对） |
+| **药物组合记录** | 论文 12,917；实际 pkl 12,972 行、12,960 个唯一有方向键、6,486 个唯一无序组合 |
 | **独立药物数** | 438 |
 | **数据来源** | DrugCombDB, DrugBank, TTD, PDBBind, PDB, AlphaFold DB |
 | **协同性判定** | ZIP、Bliss、Loewe、HSA 四项得分均为正 |
@@ -184,10 +188,10 @@ AutoDock Vina (获取蛋白-配体复合物结构 + 选择最佳靶点)
 | **对接工具** | AutoDock Vina |
 | **用途** | 评估双靶点药物设计方法的能力 |
 
-#### 数据集中每个靶点对包含：
-- 两个蛋白靶点的 3D 结构
-- 每个靶点对应的参考配体分子
-- 蛋白-配体复合物结构
+#### 一条组合记录如何映射到结构：
+- `synergy_idx_list.pkl` 中每条记录是两个参考药物索引，不是两个蛋白 ID
+- 每个参考药物目录关联一个 UniProt 靶标及其参考配体/蛋白结构
+- 将两个药物索引展开后，得到用于双靶点评估的两个药物—靶标复合物
 
 ### 2.3 数据下载与使用
 
@@ -225,12 +229,12 @@ data/processed/
 │       │       ├── protein.pdb         # 完整蛋白
 │       │       └── protein_clean.pdb   # 清洗后蛋白
 └── drug_synergy/
-    └── synergy_idx_list.pkl        # 协同靶点对列表 [(idx1, idx2), ...]
+    └── synergy_idx_list.pkl        # 有方向的协同药物组合索引 [(idx1, idx2), ...]
 ```
 
 **关键文件说明**:
 - `index_dict.pkl`: dict，key=整数索引(0~437)，value=参考配体 SMILES
-- `synergy_idx_list.pkl`: list of tuples，每个 tuple 是一对协同靶点的索引
+- `synergy_idx_list.pkl`: list of tuples，每个 tuple 是一对协同参考药物的索引；公开文件 12,972 行、12,960 个唯一有方向键，归并顺序后 6,486 个唯一无序组合
 - 每个 `{SMILES}/{UniProt_ID}/` 目录 = 一个药物-靶点复合物
 
 ### 2.4 实验流程
@@ -261,7 +265,7 @@ bash dual_scripts/example/sample_compdiff.sh
 | SA | 合成可及性 (Synthesizability) | ↑ 越高越好 |
 | Diversity | 生成分子的多样性 | ↑ 越高越好 |
 
-每对靶点生成 10 个分子，在全部 12,917 对上报告均值和中位数。
+论文称对 12,917 条组合进行评估；公开 pkl 有 12,972 条记录。若严格复现论文，必须先获得作者当时使用的 12,917 条清单；若使用公开 pkl，应明确报告 12,972 的实际口径。
 
 ### 2.6 主要实验结果
 
@@ -292,7 +296,7 @@ bash dual_scripts/example/sample_compdiff.sh
 | 数据 | 链接 | 说明 |
 |------|------|------|
 | DualDiff 代码 | https://github.com/zhouxiangxin1998/DualDiff | 仓库代码 |
-| DualDiff 数据 (data.tar.gz) | https://huggingface.co/datasets/zhouxiangxin/DualDiff | 12,917 靶点对 + 438 药物复合物 |
+| DualDiff 数据 (data.tar.gz) | https://huggingface.co/datasets/zhouxiangxin/DualDiff | 公开 pkl 12,972 条药物组合记录 + 438 药物复合物；论文报告 12,917 |
 | MM-MT 代码+数据 | https://github.com/HaoranLiu1998/MM-MT | 含 data/ 和 results/ 目录 |
 | TargetDiff（DualDiff 依赖） | https://github.com/guanjq/targetdiff | 预训练模型 + CrossDocked2020 数据 |
 | CrossDocked2020 原始数据 | https://bits.csb.pitt.edu/files/crossdock2020/ | ~22.5M 蛋白-配体对 |
@@ -306,7 +310,7 @@ bash dual_scripts/example/sample_compdiff.sh
 ### 清华服务器上建议的下载顺序
 
 1. **优先**: `git clone` 两个 GitHub 仓库（MM-MT 和 DualDiff）
-2. **其次**: 下载 `data.tar.gz`（DualDiff 的 12,917 对数据）
+2. **其次**: 下载 `data.tar.gz`（公开 pkl 实含 12,972 条药物组合记录；论文报告 12,917）
 3. **其次**: `git clone` TargetDiff 仓库 + 下载预训练权重
 4. **可选**: 如需重建数据集，再下载 CrossDocked2020、DrugCombDB 等原始数据
 
@@ -327,14 +331,14 @@ bash dual_scripts/example/sample_compdiff.sh
                                │ 零样本迁移
         ┌──────────────────────▼──────────────────────┐
         │              DualDiff (论文2)                 │
-        │  评估数据: 12,917 靶点对 (来自 DrugCombDB)     │
+        │  论文: 12,917 条组合；公开 pkl: 12,972 条       │
         └─────────────────────────────────────────────┘
 
         ┌─────────────────────────────────────────────┐
         │              MM-MT (论文1)                    │
         │  Pocket-centric 编码 + 多模态融合              │
         │  评估: COVID-19 / 精神分裂症 / 肿瘤靶点        │
-        │  (具体数据集待确认论文全文)                      │
+        │  论文: 75,921/1,305；公开 CSV: 79,514/1,328    │
         └─────────────────────────────────────────────┘
 ```
 

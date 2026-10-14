@@ -101,18 +101,21 @@ def check():
 
     # ============ 总结 ============
     print("\n" + "=" * 60)
-    print("缺失项总结")
+    print("公开文件与论文级复现状态")
     print("=" * 60)
     print()
     print("DualDiff:")
-    print("  ❌ TargetDiff 预训练权重 — 必须单独下载")
-    print("  ✅ 评估数据集 — 已就绪")
+    print("  ✅ TargetDiff 预训练权重 — 当前 Volume 已下载")
+    print("  ✅ 公开评估数据 — 已就绪")
+    print("  ⚠️  论文 12,917 条，公开 pkl 12,972 条，严格复现需作者清单")
     print("  ⚠️  CrossDocked2020 — 仅重新训练 TargetDiff 时需要")
     print()
     print("MM-MT:")
     print("  ❌ ZINC15 预训练数据 — 需运行脚本从 ZINC15 下载")
-    print("  ✅ 多模态数据 (multidata.zip) — 已就绪")
-    print("  ✅ 模型代码 — 已就绪")
+    print("  ✅ 公开多模态文件 (multidata.zip) — 已就绪")
+    print("  ⚠️  公开 CSV 为 79,514/1,328，论文最终训练集为 75,921/1,305")
+    print("  ❌ vocab、8维属性、预训练 decoder checkpoint、最终过滤清单缺失")
+    print("  ❌ 仓库主脚本不能原样直接复现论文训练")
 
 
 @app.local_entrypoint()

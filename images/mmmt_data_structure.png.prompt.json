@@ -3,7 +3,7 @@
   "client": "local-openai-compatible",
   "endpoint": "http://127.0.0.1:8317/v1/images/generations",
   "model": "gpt-image-2.5-flare",
-  "prompt": "A clean scientific infographic diagram showing the MM-MT multi-target drug design data structure. Three columns: Column 1 'CSV Data' shows a table icon with columns SMILES, Target1_Uniprot, Target1_Gene_Seq, Target2_Uniprot, Target2_Gene_Seq. Column 2 'Protein Embeddings' shows .npy files (1970 files) with a 528-dim vector visualization, named by UniProt ID like A0AVT1.npy. Column 3 'Protein Graphs' shows .pt files (1961 files) with a graph visualization showing residue nodes and spatial edges, named by UniProt ID. Bottom shows the two-stage pipeline: Stage 1 ZINC15 pretraining with MutiMolGPT, Stage 2 multi-target drug design. Clean white background, purple and orange color scheme, modern flat design, academic poster style.",
+  "prompt": "OUTDATED IMAGE METADATA. Verified facts for any future regeneration: the public CSV has 79,514 rows and 1,328 target proteins, while the paper reports a final set of 75,921 rows and 1,305 proteins. There are 1,970 protein embedding files with shape (1, 1024), not 528 dimensions, and 1,961 structure graph files. The graph IDs overlap 1,961 embedding IDs, with 9 embedding-only IDs. All 1,328 CSV targets have both modalities.",
   "size": "1536x1024",
   "quality": "",
   "output_format": "png",
